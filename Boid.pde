@@ -1,38 +1,41 @@
-class Boid {
-  InteractiveAvatarFrame frame;
-  Quaternion q;
+import remixlab.dandelion.geom.*;
+import remixlab.proscene.*;
+
+class Boidc {
+  InteractiveFrame frame;
+  Quat q;
   int grabsMouseColor;
-  PVector pos, vel, acc;
+  Vec pos, vel, acc;
   float hue; 
   // scale factor for the render of the boid
   float sc = 2; 
   
   // constructors
-  Boid(PVector inPos) {
+  Boidc(Vec inPos) {
     grabsMouseColor = color(0, 0, 255);		
-    pos = new PVector();
+    pos = new Vec();
     pos.set(inPos);
-    frame = new InteractiveAvatarFrame(scene);	
-    frame.setPosition(pos);
-    frame.setAzimuth(-HALF_PI);
-    frame.setTrackingDistance(scene.radius()/10);
-    vel = new PVector(random(-1, 1), random(-1, 1), random(1, -1));
-    acc = new PVector(0, 0, 0);
+    frame = new InteractiveFrame(scene);	
+    frame.setPosition((Vec)pos);
+    //frame.setAzimuth(-HALF_PI);
+    //frame.setTrackingDistance(scene.radius()/10);
+    vel = new Vec(random(-1, 1), random(-1, 1), random(1, -1));
+    acc = new Vec(0, 0, 0);
   }
 
   void checkBounds() {
-    if (pos.x > flockWidth)
-      pos.x = 0;
-    if (pos.x < 0)
-      pos.x = flockWidth;
-    if (pos.y > flockHeight)
-      pos.y = 0;
-    if (pos.y < 0)
-      pos.y = flockHeight;
-    if (pos.z > flockDepth)
-      pos.z = 0;
-    if (pos.z < 0)
-      pos.z = flockDepth;
+    if (pos.x() > flockWidth)
+      pos.setX(0);
+    if (pos.x() < 0)
+     pos.setX(flockWidth);
+    if (pos.y() > flockHeight)
+      pos.setY(0);
+    if (pos.y() < 0)
+      pos.setY(flockHeight);
+    if (pos.z() > flockDepth)
+      pos.setZ(0);
+    if (pos.z() < 0)
+      pos.setZ(flockDepth);
   }
 
 
@@ -106,4 +109,3 @@ void drawBoid2d() {
   vertex(3, 0, 7, 0, textPesce.height);
   endShape();
 }
-

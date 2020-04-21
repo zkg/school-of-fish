@@ -1,11 +1,12 @@
 import remixlab.proscene.*;
+import remixlab.dandelion.geom.*;
 import com.amd.aparapi.*;
 import com.onformative.leap.LeapMotionP5;
 import com.leapmotion.leap.Finger;
 import java.util.Date;
 
 // amount of boids to start the program with
-int initBoidNum = 1200; 
+int initBoidNum = 6000;//1200; 
 //flock bounding box
 public int flockWidth = 1500;
 public int flockHeight = 1050;
@@ -29,19 +30,21 @@ PImage sprite;
 PVector velocity;
 Range range; // kernel range
 
-void setup() {
-  size(1600, 600, P3D);  
+public void settings() {
+    size(1600, 600, P3D);  
+}
 
+void setup() {
   smooth();
   hint(DISABLE_DEPTH_MASK);
   textureMode(IMAGE);
   scene = new Scene(this);
-  scene.setAxisIsDrawn(false);
-  scene.setGridIsDrawn(false);
-  scene.setBoundingBox(new PVector(0, 0, 0), new PVector(flockWidth, flockHeight, flockDepth));
+  //scene.setAxisIsDrawn(false);
+  //scene.setGridIsDrawn(false);
+  scene.setBoundingBox(new Vec(0, 0, 0), new Vec(flockWidth, flockHeight, flockDepth));
   scene.showAll();
-  scene.camera().setPosition(new PVector(800, 400, 1600));
-  scene.setFrameRate(50, true);
+  scene.camera().setPosition(new Vec(800, 400, 1600));
+  //scene.setFrameRate(50, true);
 
   // create and fill the list of boids
   flock1 = new BoidList(initBoidNum); 
@@ -179,5 +182,73 @@ void drawBkg(){
   vertex(0,bkgImage.height,0,bkgImage.height);
   endShape();
   popMatrix();
+
+}
+
+
+// Track last postion as both normalized value and as raw value, and
+// make note of the largests and smallest raw values so we can see 
+// what range we get.
+com.leapmotion.leap.Vector lastPos() {
+
+  com.leapmotion.leap.Vector normlp = listener.normalizedAvgPos();
+  com.leapmotion.leap.Vector lp = listener.avgPos();
+
+  if (lp.getX() < xMin ){ xMin = lp.getX(); }
+  if (lp.getY() < yMin ){ yMin = lp.getY(); }
+
+  if (lp.getX() > xMax ){  xMax = lp.getX(); }
+  if (lp.getY() > yMax ){  yMax = lp.getY(); }
+
+  return normlp;
+}
+
+void d(String msg) {
+  if (DEBUG) {
+    println(msg);
+  }
+}
+
+int mapXforScreen(float xx) {
+  return( int( map(xx, 0.0, 1.0, 0.0, width-130) ) );
+}
+
+int mapYforScreen(float yy) {
+  return( int( map(yy, 0.0, 1.0,  height+150, 10) ) );
+}
+
+int mapZforScreen(float zz) {
+  return( int( map(zz, 0.0, 1.0,  0, 750) ) );
+}
+
+int zToColorInt(float fz) {
+  // If we are getting normalized values then they
+  // should always be within the the range ...
+  if (fz < minZ) { return 0; }
+  if (fz > maxZ) { return 255; }
+  return int(map(fz, minZ, maxZ,  0, 255));
+}
+
+void writePosition(){
+  int zMap = zToColorInt(lastPos().getZ());
+  int baseY = mapYforScreen( lastPos().getY() );
+  int inc = 30;
+  int xLoc = mapXforScreen(lastPos().getX()); 
+
+  textSize(32);
+  fill(zMap, zMap, zMap);
+
+  d("lastPos() : " + lastPos() );
+  d("normalizedAvgPos  : " + normalizedAvgPos );
+
+  text("X: " + lastPos().getX(), xLoc, baseY);
+  text("Y: " + lastPos().getY(), xLoc, baseY + inc*2 );
+  text("Z: " + lastPos().getZ(), xLoc, baseY + inc*3 );
+
+  text("min X: "  + xMin, xLoc, baseY + inc*4 );
+  text("max X: "  + xMax, xLoc, baseY + inc*5 );
+
+  text("min Y: "  + yMin, xLoc, baseY + inc*6 );
+  text("max Y: "  + yMax, xLoc, baseY + inc*7 );
 
 }

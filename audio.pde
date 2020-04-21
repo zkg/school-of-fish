@@ -97,4 +97,3 @@ void drawAudio()
   text( "Filter cutoff: " + moog.frequency.getLastValue() + " Hz", 10, 245 );
   text( "Filter resonance: " + moog.resonance.getLastValue(), 10, 265 );
 }
-
